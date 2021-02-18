@@ -5,49 +5,86 @@ import java.io.*;
 
 public class Example {
 
-   static private void merge() throws IOException{
 
-        String[] f = new String[Config.files.size()+1];
-        BufferedWriter out = new BufferedWriter(new FileWriter("../files/"+Config.outFile));
-        BufferedReader[] in = new BufferedReader[Config.files.size()+1];
+    static private BufferedReader[] getReaders() throws IOException {
+        BufferedReader[] in = new BufferedReader[Config.files.size()];
         FileInputStream file;
-        for(int i=0;i<Config.files.size();i++) {
-            file = new FileInputStream("../files/" + Config.files.get(i));
+        for (int i = 0; i < Config.files.size(); i++) {
+            file = new FileInputStream("./files/" + Config.files.get(i));
             in[i] = new BufferedReader(new InputStreamReader(file));
-            f[i]=in[i].readLine();
+        }
+        return in;
+    }
+
+    static private boolean isNumeric(String str) {
+
+        try {
+            return str.matches("-?\\d+(\\.\\d+)?");
+        }
+        catch (NullPointerException e){
+            return true;
+        }
+    }
+
+
+
+    static private void merge(BufferedReader[] in, BufferedWriter out) throws IOException {
+
+        String[] f = new String[Config.files.size()];
+        for (int i = 0; i < Config.files.size(); i++) {
+            f[i] = in[i].readLine();
         }
 
-        while (true)
-        {
-            if (f[0]==null) {
-                out.write(f[1]);
-                f[1]=in[1].readLine();
-            }
-            else if (f[1]==null){
-                out.write(f[0]);
+        while (true) {
+
+
+            if(!isNumeric(f[0])) {
                 f[0]=in[0].readLine();
+                continue;
             }
-            else if (Integer.parseInt(f[0])<Integer.parseInt(f[1]))
-            {
-                out.write(f[0]);
-                f[0]=in[0].readLine();
-            }else {
-                out.write(f[1]);
+            if(!isNumeric(f[1])) {
                 f[1]=in[1].readLine();
+                continue;
             }
 
-            if((f[0]==null) && (f[1]==null)) {
+            if (f[0] == null) {
+                out.write(f[1]);
+                f[1] = in[1].readLine();
+            } else if (f[1] == null) {
+                out.write(f[0]);
+                f[0] = in[0].readLine();
+            } else if (Integer.parseInt(f[0]) < Integer.parseInt(f[1])) {
+                out.write(f[0]);
+                f[0] = in[0].readLine();
+            } else {
+                out.write(f[1]);
+                f[1] = in[1].readLine();
+            }
+
+            if ((f[0] == null) && (f[1] == null)) {
                 break;
             }
             out.write("\n");
         }
 
-        for(int i=0;i<Config.files.size();i++)
+        for (int i = 0; i < Config.files.size(); i++) {
             in[i].close();
+        }
         out.close();
     }
 
     public static void main(String[] args) throws IOException {
+
+        args = new String[5];
+        args[0] = "-i";
+        args[1] = "-a";
+        args[2] = "out.txt";
+        args[3] = "file1.txt";
+        args[4] = "file2.txt";
+
+        System.out.println("vot");
+        System.out.println(isNumeric("242"));
+        System.out.println(isNumeric("22./442f"));
 
 //        sort-it.exe -i -a out.txt in.txt (для целых чисел по возрастанию)
 //        sort-it.exe -s out.txt in1.txt in2.txt in3.txt (для строк по возрастанию)
@@ -56,24 +93,20 @@ public class Example {
 //        2. тип данных (-s или -i), обязательный;
 //        3. имя выходного файла, обязательное;
 //        4. остальные параметры – имена входных файлов, не менее одного.
-
-        switch (args.length){
-            case 0,1,2:
-                System.out.println("Error!");
-                return;
-            case 3,4,5: {
-                Config.init(args);
-                try {
-                    merge();
-                }catch (Exception e){
-
+            switch (args.length) {
+                case 0, 1, 2:
+                    System.out.println("Error!");
+                    return;
+                case 3, 4, 5: {
+                    Config.init(args);
+                    BufferedWriter out = new BufferedWriter(new FileWriter("./files/"+Config.outFile));
+                    BufferedReader[] in = getReaders();
+                    merge(in,out);
+                    break;
                 }
-
-                break;
+                default:
+                    break;
             }
-            default: break;
-        }
-
 
 
 //        while (true)
@@ -101,12 +134,13 @@ public class Example {
 //            out.write("\n");
 //        }
 
-        System.out.println(Config.isAscending);
-        System.out.println(Config.isNumber);
-        System.out.println(Config.outFile);
-        for(String s:Config.files){
-            System.out.println(s);
+//        System.out.println(Config.isAscending);
+//        System.out.println(Config.isNumber);
+//        System.out.println(Config.outFile);
+//        for(String s:Config.files){
+//            System.out.println(s);
+//        }
         }
     }
-}
+
 
